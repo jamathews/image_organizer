@@ -15,6 +15,16 @@ register_heif_opener()
 
 
 def move_file(src: Path, dest: Path):
+    """
+    This function is used to move a file from a source path to a destination path.
+    If the destination path does not exist, it will be created.
+    If the file already exists at the destination path, the operation will not be performed.
+
+    Args:
+    src (Path): The source file path.
+    dest (Path): The destination path.
+
+    """
     # Ensure that src file exists
     if not Path(src).is_file():
         print('The source file does not exist.')
@@ -37,6 +47,15 @@ def move_file(src: Path, dest: Path):
 
 
 def is_image(file_path: Path) -> bool:
+    """
+    This function checks if a given file is an image.
+
+    Args:
+    file_path (Path): The path to the file to check.
+
+    Returns:
+    bool: True if the file is an image, False otherwise.
+    """
     try:
         Image.open(file_path).verify()
         return True
@@ -47,6 +66,15 @@ def is_image(file_path: Path) -> bool:
 
 
 def extract_capture_date(image_file_path: Path) -> Optional[datetime]:
+    """
+    This function extracts the capture date from an image file.
+
+    Args:
+    image_file_path (Path): The path to the image file.
+
+    Returns:
+    Optional[datetime]: The capture date of the image if available, None otherwise.
+    """
     # Open image file for reading (binary mode)
     with open(image_file_path, 'rb') as f:
         # Return Exif tags
@@ -61,6 +89,14 @@ def extract_capture_date(image_file_path: Path) -> Optional[datetime]:
 
 
 def move_images(src: Path, dest: Path) -> None:
+    """
+    This function moves all images from the source path to the destination path, organizing them by the capture date.
+    Non-image files will be ignored.
+
+    Args:
+    src (Path): The source directory path.
+    dest (Path): The destination directory path.
+    """
     # Check if the source directory exists
     if not os.path.isdir(src):
         print(f"Source directory {src} does not exist.")
@@ -90,6 +126,10 @@ def move_images(src: Path, dest: Path) -> None:
 
 
 if __name__ == "__main__":
+    """
+    This is the entry point for the script.
+    It expects two command-line arguments: the source directory and the destination directory.
+    """
     # Check if there are enough arguments
     if len(sys.argv) != 3:
         print(f"Usage: python {os.path.basename(sys.argv[0])} [source folder] [destination folder]")
