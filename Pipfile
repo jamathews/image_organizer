@@ -4,6 +4,9 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+exifread = "<3"
+pillow = "*"
+pillow-heif = "*"
 
 [dev-packages]
 
