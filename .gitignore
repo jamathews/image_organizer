@@ -241,3 +241,4 @@ cython_debug/
 
 test/src/
 test/dest/
+.DS_Store
