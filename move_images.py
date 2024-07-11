@@ -14,6 +14,20 @@ from pillow_heif import register_heif_opener
 register_heif_opener()
 
 
+def get_file_creation_time(filename: Path) -> datetime:
+    """
+    This function retrieves the creation time of a specified file.
+
+    Args:
+        filename (Path): The file for which to retrieve the creation time.
+
+    Returns:
+        datetime: The creation time of the file.
+    """
+    timestamp = os.path.getmtime(filename)
+    return datetime.fromtimestamp(timestamp)
+
+
 def move_file(src: Path, dest: Path):
     """
     This function is used to move a file from a source path to a destination path.
@@ -108,18 +122,23 @@ def move_images(src: Path, dest: Path) -> None:
         return
     all_files = os.listdir(src)
     for file in all_files:
-        if is_image(Path(os.path.join(src, file))):
-            try:
-                capture_date = extract_capture_date(Path(os.path.join(src, file)))
-                target_folder = get_target_folder(dest, capture_date)
+        file_path = Path(os.path.join(src, file))
+        if is_image(file_path):
+            capture_date = extract_capture_date(file_path)
+            if not capture_date:
+                capture_date = get_file_creation_time(file_path)
+        elif os.path.splitext(file_path)[1] in ['.MOV', '.MP4', '.AAE']:
+            capture_date = get_file_creation_time(file_path)
+        else:
+            capture_date = None
 
-                file_basename = os.path.splitext(file)[0]
-                files_with_same_basename = [f for f in all_files if os.path.splitext(f)[0] == file_basename]
-                for new_file in files_with_same_basename:
-                    move_file(Path(os.path.join(src, new_file)), target_folder)
+        if capture_date:
+            target_folder = get_target_folder(dest, capture_date)
 
-            except Exception as e:
-                print(f"Could not extract capture date for {file}. {e}")
+            file_basename = os.path.splitext(file)[0]
+            files_with_same_basename = [f for f in all_files if os.path.splitext(f)[0] == file_basename]
+            for new_file in files_with_same_basename:
+                move_file(Path(os.path.join(src, new_file)), target_folder)
 
 
 def get_target_folder(dest: Path, capture_date: datetime) -> Path:
