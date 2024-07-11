@@ -4,10 +4,11 @@ import shutil
 import sys
 from datetime import datetime
 from pathlib import Path
+from typing import Optional
 
-import PIL
 import exifread
 from PIL import Image
+from PIL import UnidentifiedImageError
 from pillow_heif import register_heif_opener
 
 register_heif_opener()
@@ -35,17 +36,17 @@ def move_file(src: Path, dest: Path):
     shutil.move(src, dest_path)
 
 
-def is_image(file_path):
+def is_image(file_path: Path) -> bool:
     try:
         Image.open(file_path).verify()
         return True
-    except PIL.UnidentifiedImageError:
+    except UnidentifiedImageError:
         return False
     except IOError:
         return False
 
 
-def extract_capture_date(image_file_path):
+def extract_capture_date(image_file_path: Path) -> Optional[datetime]:
     # Open image file for reading (binary mode)
     with open(image_file_path, 'rb') as f:
         # Return Exif tags
@@ -59,7 +60,7 @@ def extract_capture_date(image_file_path):
     return None
 
 
-def move_images(src, dest):
+def move_images(src: Path, dest: Path) -> None:
     # Check if the source directory exists
     if not os.path.isdir(src):
         print(f"Source directory {src} does not exist.")
@@ -71,9 +72,9 @@ def move_images(src, dest):
         return
 
     for file in os.listdir(src):
-        if is_image(os.path.join(src, file)):
+        if is_image(Path(os.path.join(src, file))):
             try:
-                capture_date = extract_capture_date(os.path.join(src, file))
+                capture_date = extract_capture_date(Path(os.path.join(src, file)))
                 year = capture_date.strftime('%Y')
                 month = capture_date.strftime('%m')
                 date = capture_date.strftime('%Y-%m-%d')
@@ -99,4 +100,4 @@ if __name__ == "__main__":
     dest_dir = sys.argv[2]
 
     # Call the main function
-    move_images(source_dir, dest_dir)
+    move_images(Path(source_dir), Path(dest_dir))
