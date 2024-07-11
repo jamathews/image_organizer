@@ -106,23 +106,39 @@ def move_images(src: Path, dest: Path) -> None:
     if not os.path.isdir(dest):
         print(f"Destination directory {dest} does not exist.")
         return
-
-    for file in os.listdir(src):
+    all_files = os.listdir(src)
+    for file in all_files:
         if is_image(Path(os.path.join(src, file))):
             try:
                 capture_date = extract_capture_date(Path(os.path.join(src, file)))
-                year = capture_date.strftime('%Y')
-                month = capture_date.strftime('%m')
-                date = capture_date.strftime('%Y-%m-%d')
-                target_folder = Path(os.path.join(dest, year, month, date))
+                target_folder = get_target_folder(dest, capture_date)
 
                 file_basename = os.path.splitext(file)[0]
-                files_with_same_basename = [f for f in os.listdir(src) if os.path.splitext(f)[0] == file_basename]
+                files_with_same_basename = [f for f in all_files if os.path.splitext(f)[0] == file_basename]
                 for new_file in files_with_same_basename:
                     move_file(Path(os.path.join(src, new_file)), target_folder)
 
             except Exception as e:
                 print(f"Could not extract capture date for {file}. {e}")
+
+
+def get_target_folder(dest: Path, capture_date: datetime) -> Path:
+    """
+    This function computes the target folder to move the images.
+    The images are organized in a folder structure by Year/Month/Date based on the capture date.
+
+    Args:
+    dest (Path): The destination directory path.
+    capture_date (datetime): The capture date of the image.
+
+    Returns:
+    Path: The target folder as a Path object.
+    """
+    year = capture_date.strftime('%Y')
+    month = capture_date.strftime('%m')
+    date = capture_date.strftime('%Y-%m-%d')
+    target_folder = Path(os.path.join(dest, year, month, date))
+    return target_folder
 
 
 if __name__ == "__main__":
