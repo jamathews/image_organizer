@@ -5,6 +5,7 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
+import PIL
 import exifread
 from PIL import Image
 from pillow_heif import register_heif_opener
@@ -14,7 +15,7 @@ register_heif_opener()
 
 def move_file(src: Path, dest: Path):
     # Ensure that src file exists
-    if not os.path.isfile(src):
+    if not Path(src).is_file():
         print('The source file does not exist.')
         return
 
@@ -26,7 +27,7 @@ def move_file(src: Path, dest: Path):
 
     # Ensure the destination file does not exist
     if os.path.isfile(dest_path):
-        print('The destination file already exists.')
+        print(f'The destination file already exists: {dest_path}')
         return
 
     # Move the file
@@ -38,7 +39,9 @@ def is_image(file_path):
     try:
         Image.open(file_path).verify()
         return True
-    except:
+    except PIL.UnidentifiedImageError:
+        return False
+    except IOError:
         return False
 
 
