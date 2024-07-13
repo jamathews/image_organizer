@@ -123,14 +123,12 @@ def move_images(src: Path, dest: Path) -> None:
     all_files = os.listdir(src)
     for file in all_files:
         file_path = Path(os.path.join(src, file))
-        if is_image(file_path):
+        if False and is_image(file_path):
             capture_date = extract_capture_date(file_path)
             if not capture_date:
                 capture_date = get_file_creation_time(file_path)
-        elif os.path.splitext(file_path)[1] in ['.MOV', '.MP4', '.AAE']:
-            capture_date = get_file_creation_time(file_path)
         else:
-            capture_date = None
+            capture_date = get_file_creation_time(file_path)
 
         if capture_date:
             target_folder = get_target_folder(dest, capture_date)
